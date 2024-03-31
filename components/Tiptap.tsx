@@ -18,7 +18,7 @@ const DisableEnter = Extension.create({
         if (this.editor.isActive('bulletList')) return false;
         
         this.editor.chain().selectParentNode().createParagraphNear().focus().run();
-        return true;
+        return true; // true 반환 시 엔터 작동하지않음
       },
     };
   },
@@ -46,16 +46,16 @@ const Tiptap = ({ onChange, content }: any) => {
         openOnClick: false,
         autolink: true,
       }),
-      HardBreak.extend({
-        // addKeyboardShortcuts () {
-        //   return {
-        //     Enter: () => this.editor.commands.setHardBreak()
-        //   }
-        // }
-        HTMLAttributes: {
-          class: 'hard-break-br',
-        },
-      }), 
+      // HardBreak.extend({
+      //   // addKeyboardShortcuts () {
+      //   //   return {
+      //   //     Enter: () => this.editor.commands.setHardBreak()
+      //   //   }
+      //   // }
+      //   HTMLAttributes: {
+      //     class: 'hard-break-br',
+      //   },
+      // }), 
       DisableEnter
     ],
     editorProps: {
