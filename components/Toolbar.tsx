@@ -15,6 +15,7 @@ import {
   Redo,
   Code,
 } from "lucide-react";
+import { createPhoto } from "@/app/api/apis";
 
 type Props = {
   editor: Editor | null;
@@ -22,6 +23,25 @@ type Props = {
 };
 
 const Toolbar = ({ editor, content }: Props) => {
+
+  const handleUploadPhoto = async (files: FileList | null) => {
+    if (files === null || !editor) return;
+
+    
+
+    Promise.all([Array.from(files).map(async file => {
+      const formData = new FormData();
+      formData.append('file', file);
+  
+      const imgHash = await createPhoto(formData);// 백엔드에게 이미지 Post요청 후 URL 받기
+      const IMG_URL = imgHash?.file;
+  
+      editor.commands.setImage({ src: IMG_URL });
+    })]) 
+
+
+  };
+
   
   const setLink = useCallback(() => {
     const previousUrl = editor?.getAttributes('link').href
@@ -148,6 +168,16 @@ const Toolbar = ({ editor, content }: Props) => {
       >
         unsetLink
       </button>
+
+      <input 
+        type='file' 
+        accept="image/*" 
+        multiple
+        onChange={(e) => {
+          handleUploadPhoto(e.target.files);
+          e.target.value = ''; // 중복해서 데이터 넣을 경우 가능 예외 처리 
+        }}
+      />
         
       </div>
       

@@ -5,16 +5,26 @@ import StarterKit from "@tiptap/starter-kit";
 import Toolbar from "./Toolbar";
 import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
+import Image from '@tiptap/extension-image'
 
 const Tiptap = ({ onChange, content }: any) => {
   const handleChange = (newContent: string) => {
     onChange(newContent);
   };
   const editor = useEditor({
-    extensions: [StarterKit, Underline, Link.configure({
-      openOnClick: false,
-      autolink: true,
-    }),
+    extensions: [
+      StarterKit, 
+      Underline, 
+      Image.configure({
+        inline: true,
+        HTMLAttributes: {
+          class: 'insert-image',
+        },
+      }),
+      Link.configure({
+        openOnClick: false,
+        autolink: true,
+      }),
     ],
     editorProps: {
       attributes: {

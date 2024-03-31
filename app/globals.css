@@ -73,3 +73,8 @@ h2 {
 a {
   color: #68cef8;
 }
+
+.insert-image {
+  max-width: 300px;
+  max-height: 300px;
+}
