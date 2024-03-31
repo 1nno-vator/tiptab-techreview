@@ -6,14 +6,35 @@ import Toolbar from "./Toolbar";
 import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import Image from '@tiptap/extension-image'
+import HardBreak from "@tiptap/extension-hard-break";
+
+import { Extension } from "@tiptap/core";
+
+const DisableEnter = Extension.create({
+  addKeyboardShortcuts() {
+    return {
+      Enter: () => {
+        
+        if (this.editor.isActive('bulletList')) return false;
+        
+        this.editor.chain().selectParentNode().createParagraphNear().focus().run();
+        return true;
+      },
+    };
+  },
+});
 
 const Tiptap = ({ onChange, content }: any) => {
+  
   const handleChange = (newContent: string) => {
     onChange(newContent);
   };
+
   const editor = useEditor({
     extensions: [
-      StarterKit, 
+      StarterKit.configure({
+        history: false,
+      }), 
       Underline, 
       Image.configure({
         inline: true,
@@ -25,6 +46,17 @@ const Tiptap = ({ onChange, content }: any) => {
         openOnClick: false,
         autolink: true,
       }),
+      HardBreak.extend({
+        // addKeyboardShortcuts () {
+        //   return {
+        //     Enter: () => this.editor.commands.setHardBreak()
+        //   }
+        // }
+        HTMLAttributes: {
+          class: 'hard-break-br',
+        },
+      }), 
+      DisableEnter
     ],
     editorProps: {
       attributes: {
