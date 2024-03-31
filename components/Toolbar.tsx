@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useCallback } from "react";
 import { type Editor } from "@tiptap/react";
 import {
   Bold,
@@ -22,6 +22,29 @@ type Props = {
 };
 
 const Toolbar = ({ editor, content }: Props) => {
+  
+  const setLink = useCallback(() => {
+    const previousUrl = editor?.getAttributes('link').href
+    const url = window.prompt('URL', previousUrl)
+
+    // cancelled
+    if (url === null) {
+      return
+    }
+
+    // empty
+    if (url === '') {
+      editor?.chain().focus().extendMarkRange('link').unsetLink()
+        .run()
+
+      return
+    }
+
+    // update link
+    editor?.chain().focus().extendMarkRange('link').setLink({ href: url })
+      .run()
+  }, [editor])
+  
   if (!editor) {
     return null;
   }
@@ -42,7 +65,8 @@ const Toolbar = ({ editor, content }: Props) => {
               : "text-sky-400"
           }
         >
-          <Bold className="w-5 h-5" />
+          {/* <Bold className="w-5 h-5" /> */}
+          {editor.isActive("bold") ? '볼드해제' : '볼드적용'}
         </button>
         <button
           onClick={(e) => {
@@ -55,7 +79,8 @@ const Toolbar = ({ editor, content }: Props) => {
               : "text-sky-400"
           }
         >
-          <Italic className="w-5 h-5" />
+          {/* <Italic className="w-5 h-5" /> */}
+          {editor.isActive("italic") ? '이탤릭해제' : '이탤릭적용'}
         </button>
         <button
           onClick={(e) => {
@@ -68,7 +93,8 @@ const Toolbar = ({ editor, content }: Props) => {
               : "text-sky-400"
           }
         >
-          <Underline className="w-5 h-5" />
+          {/* <Underline className="w-5 h-5" /> */}
+          {editor.isActive("underline") ? '밑줄해제' : '밑줄적용'}
         </button>
         <button
           onClick={(e) => {
@@ -81,7 +107,7 @@ const Toolbar = ({ editor, content }: Props) => {
               : "text-sky-400"
           }
         >
-          <Strikethrough className="w-5 h-5" />
+          {editor.isActive("strike") ? '취소선' : '취소선적용'}
         </button>
         <button
           onClick={(e) => {
@@ -94,7 +120,8 @@ const Toolbar = ({ editor, content }: Props) => {
               : "text-sky-400"
           }
         >
-          <Heading2 className="w-5 h-5" />
+          {/* <Heading2 className="w-5 h-5" /> */}
+          {editor.isActive("heading", { level: 2 }) ? '본문으로' : '소제목으로'}
         </button>
 
         <button
@@ -108,9 +135,39 @@ const Toolbar = ({ editor, content }: Props) => {
               : "text-sky-400"
           }
         >
-          <List className="w-5 h-5" />
+          {/* <List className="w-5 h-5" /> */}
+          {editor.isActive("bulletList") ? '불릿해제' : '불릿적용'}
         </button>
+
+      <button onClick={setLink} className={editor.isActive('link') ? 'is-active' : ''}>
+        setLink
+      </button>
+      <button
+        onClick={() => editor.chain().focus().unsetLink().run()}
+        disabled={!editor.isActive('link')}
+      >
+        unsetLink
+      </button>
+        
+      </div>
+      
         <button
+          type="submit"
+          className="px-4 bg-sky-700 text-white py-2 rounded-md"
+          disabled={!content}
+        >
+          Add
+        </button>
+      
+    </div>
+  );
+};
+
+export default Toolbar;
+
+
+const UNUSED = `
+<button
           onClick={(e) => {
             e.preventDefault();
             editor.chain().focus().toggleOrderedList().run();
@@ -142,7 +199,7 @@ const Toolbar = ({ editor, content }: Props) => {
             editor.chain().focus().setCode().run();
           }}
           className={
-            editor.isActive("code")
+            editor.isActive("codeblock")
               ? "bg-sky-700 text-white p-2 rounded-lg"
               : "text-sky-400"
           }
@@ -175,18 +232,4 @@ const Toolbar = ({ editor, content }: Props) => {
         >
           <Redo className="w-5 h-5" />
         </button>
-      </div>
-      
-        <button
-          type="submit"
-          className="px-4 bg-sky-700 text-white py-2 rounded-md"
-          disabled={!content}
-        >
-          Add
-        </button>
-      
-    </div>
-  );
-};
-
-export default Toolbar;
+        `
