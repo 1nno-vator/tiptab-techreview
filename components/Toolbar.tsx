@@ -60,9 +60,16 @@ const Toolbar = ({ editor, content }: Props) => {
       return
     }
 
-    // update link
-    editor?.chain().focus().extendMarkRange('link').setLink({ href: url })
-      .run()
+    const selectedText = editor?.getText()
+
+    if (selectedText) {
+      // update link
+      editor?.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
+    } else {
+      editor?.commands.insertContent(url)
+    }
+
+      
   }, [editor])
   
   if (!editor) {

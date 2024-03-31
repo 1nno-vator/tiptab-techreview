@@ -23,7 +23,7 @@ const Todo = () => {
     localStorage.setItem('myData', JSON.stringify(updatedData))
     setContent('')
 
-    location.reload();
+    // location.reload();
   }
   return (
     <form
