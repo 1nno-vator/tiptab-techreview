@@ -62,12 +62,16 @@ const Toolbar = ({ editor, content }: Props) => {
 
     const selectedText = editor?.getText()
 
+    console.log('selectedText')
+
     if (selectedText) {
       // update link
-      editor?.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
+      editor?.chain().focus().extendMarkRange('link').setLink({ href: url }).run(); 
     } else {
-      editor?.commands.insertContent(url)
+      editor?.commands.insertContent(url + ' ')
     }
+
+    editor?.commands?.insertContent(`<link-preview-card count="9999" url="${url}"></link-preview-card>`)
 
       
   }, [editor])

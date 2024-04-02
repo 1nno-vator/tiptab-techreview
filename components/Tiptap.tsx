@@ -1,24 +1,37 @@
 "use client";
 
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, Mark, markPasteRule } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Toolbar from "./Toolbar";
 import Underline from "@tiptap/extension-underline";
-import Link from "@tiptap/extension-link";
 import Image from '@tiptap/extension-image'
-import HardBreak from "@tiptap/extension-hard-break";
+import Document from '@tiptap/extension-document'
+import Paragraph from '@tiptap/extension-paragraph'
+import Text from '@tiptap/extension-text'
+
 
 import { Extension } from "@tiptap/core";
+import { RedBox } from "@/app/utils/editor/RedBox";
+import Link from "@tiptap/extension-link";
+
+import { LinkPreviewCardNode } from '@/app/utils/editor/node/LinkPreviewCardNode'
+import { find } from 'linkifyjs';
+
 
 const DisableEnter = Extension.create({
   addKeyboardShortcuts() {
     return {
       Enter: () => {
         
-        if (this.editor.isActive('bulletList')) return false;
+        // this.editor.commands.insertContent("<br>");
+
+        // if (this.editor.isActive('bulletList')) return false;
         
-        this.editor.chain().selectParentNode().createParagraphNear().focus().run();
-        return true; // true 반환 시 엔터 작동하지않음
+        // this.editor.chain().createParagraphNear().focus().run();
+        // const attr = this.editor.getAttributes('bold');
+        // console.log(attr)
+
+        return false; // true 반환 시 엔터 작동하지않음
       },
     };
   },
@@ -29,34 +42,64 @@ const Tiptap = ({ onChange, content }: any) => {
   const handleChange = (newContent: string) => {
     onChange(newContent);
   };
-
+  
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({
-        history: false,
-      }), 
+      StarterKit,
+      LinkPreviewCardNode,
       Underline, 
       Image.configure({
-        inline: true,
+        inline: false,
         HTMLAttributes: {
           class: 'insert-image',
         },
       }),
-      Link.configure({
-        openOnClick: false,
-        autolink: true,
+      Link.extend({
+        addPasteRules() {
+          return [
+              markPasteRule({
+                  find: text => {
+                    console.log(text)  
+                    const foundLinks: any[] = [];
+                      if (text) {
+                          const links = find(text)?.filter(item => item.isLink);
+                          if (links.length) {
+                              links.forEach((link, index) => {
+                                  
+                                  setTimeout(() => {
+                                    this.editor.commands.insertContent(`<link-preview-card count="9999" url="${link.value}"></link-preview-card>`);
+                                    this.editor.chain().enter().createParagraphNear().focus('end').run();
+                                  }, 1000)
+                                
+                                
+                                
+                                foundLinks.push({
+                                  text: link.value,
+                                  data: {
+                                      href: link.href,
+                                  },
+                                  index: link.start,
+                                })
+                              }
+                            );
+                          }
+                      }
+
+                      return foundLinks;
+                  },
+                  type: this.type,
+                  getAttributes: match => {
+                      var _a;
+                      return {
+                          href: (_a = match.data) === null || _a === void 0 ? void 0 : _a.href,
+                      };
+                  },
+              }),
+          ];
+      },
       }),
-      // HardBreak.extend({
-      //   // addKeyboardShortcuts () {
-      //   //   return {
-      //   //     Enter: () => this.editor.commands.setHardBreak()
-      //   //   }
-      //   // }
-      //   HTMLAttributes: {
-      //     class: 'hard-break-br',
-      //   },
-      // }), 
-      DisableEnter
+      RedBox,  
+      DisableEnter,
     ],
     editorProps: {
       attributes: {
@@ -67,6 +110,15 @@ const Tiptap = ({ onChange, content }: any) => {
     onUpdate: ({ editor }) => {
       handleChange(editor.getHTML());
     },
+    content: `
+    <p>
+      This is still the text editor you’re used to, but enriched with node views.
+    </p>
+    <link-preview-card count="0"></link-preview-card>
+    <p>
+      Did you see that? That’s a React component. We are really living in the future.
+    </p>
+    `
   });
 
   return (
